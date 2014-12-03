@@ -96,7 +96,7 @@ void draw () {
   canonicalPoints[3] = new Point(350, 350);
   canonicalMarker.fromArray(canonicalPoints);
 
-  if (markers.isEmpty()) println("num points: " + markers.get(0).height());
+  if (!markers.isEmpty()) println("num points: " + markers.get(0).height());
 
   Mat transform;
   if (!markers.isEmpty()) { 
