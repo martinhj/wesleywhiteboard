@@ -105,7 +105,8 @@ void draw () {
     Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
 
 
-  Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255, Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+  Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
+      Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
 
   float cellSize = 350/7.0;
 
@@ -116,7 +117,8 @@ void draw () {
       int cellX = int(col*cellSize);
       int cellY = int(row*cellSize);
 
-      Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, cellY+ (int)cellSize); 
+      Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
+          cellY+ (int)cellSize); 
       markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
     }
   }
@@ -173,7 +175,7 @@ void draw () {
       stroke(0,255,0);
       rect(col*cellSize, row*cellSize, cellSize, cellSize);
       //line(i*cellSize, 0, i*cellSize, dst.width);
-    //line(0, i*cellSize, dst.width, i*cellSize);
+      //line(0, i*cellSize, dst.width, i*cellSize);
     }
   }
 
@@ -192,7 +194,9 @@ void captureEvent(Capture c) {
 
 
 
-
+/**
+ *
+ */
 ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
   float minAllowedContourSide = 50;
   minAllowedContourSide = minAllowedContourSide * minAllowedContourSide;
@@ -214,7 +218,8 @@ ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
     float minDist = src.width * src.width;
     Point[] points = candidate.toArray();
     for (int i = 0; i < points.length; i++) {
-      Point side = new Point(points[i].x - points[(i+1)%4].x, points[i].y - points[(i+1)%4].y);
+      Point side = new Point(points[i].x - points[(i+1)%4].x,
+          points[i].y - points[(i+1)%4].y);
       float squaredLength = (float)side.dot(side);
       // println("minDist: " + minDist  + " squaredLength: " +squaredLength);
       minDist = min(minDist, squaredLength);
@@ -233,6 +238,11 @@ ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
   return result;
 }
 
+
+
+/**
+ *
+ */
 ArrayList<MatOfPoint2f> createPolygonApproximations(ArrayList<MatOfPoint> cntrs) {
   ArrayList<MatOfPoint2f> result = new ArrayList<MatOfPoint2f>();
 
@@ -241,13 +251,19 @@ ArrayList<MatOfPoint2f> createPolygonApproximations(ArrayList<MatOfPoint> cntrs)
 
   for (MatOfPoint contour : cntrs) {
     MatOfPoint2f approx = new MatOfPoint2f();
-    Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), approx, epsilon, true);
+    Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), approx,
+        epsilon, true);
     result.add(approx);
   }
 
   return result;
 }
 
+
+
+/**
+ *
+ */
 void drawContours(ArrayList<MatOfPoint> cntrs) {
   for (MatOfPoint contour : cntrs) {
     beginShape();
@@ -259,6 +275,11 @@ void drawContours(ArrayList<MatOfPoint> cntrs) {
   }
 }
 
+
+
+/**
+ *
+ */
 void drawContours2f(ArrayList<MatOfPoint2f> cntrs) {
   for (MatOfPoint2f contour : cntrs) {
     beginShape();
