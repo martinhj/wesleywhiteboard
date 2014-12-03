@@ -157,6 +157,7 @@ void draw () {
   popMatrix();
 
   pushMatrix();
+	scale(0.7);
   translate(src.width/2, 0);
   strokeWeight(1);
   image(dst, 0, 0);
