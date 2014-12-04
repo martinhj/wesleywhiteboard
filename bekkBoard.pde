@@ -160,39 +160,41 @@ void draw () {
 		}
 
 
-  Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
-      Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+    Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
+        Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
 
-  float cellSize = 350/7.0;
+    float cellSize = 350/7.0;
 
-  markerCells = new boolean[7][7];
+    markerCells = new boolean[7][7];
 
-  for (int row = 0; row < 7; row++) {
-    for (int col = 0; col < 7; col++) {
-      int cellX = int(col*cellSize);
-      int cellY = int(row*cellSize);
-
-      Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
-          cellY+ (int)cellSize); 
-      markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
-    }
-  }
-
-  for (int col = 0; col < 7; col++) {
     for (int row = 0; row < 7; row++) {
-      if (markerCells[row][col]) {
-        print(1);
-      } 
-      else {
-        print(0);
+      for (int col = 0; col < 7; col++) {
+        int cellX = int(col*cellSize);
+        int cellY = int(row*cellSize);
+
+        Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
+            cellY+ (int)cellSize); 
+        markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
       }
     }
-    println();
-  }
 
-  dst  = createImage(350, 350, RGB);
-  opencv.toPImage(unWarpedMarker, dst);
+    for (int col = 0; col < 7; col++) {
+      for (int row = 0; row < 7; row++) {
+        if (markerCells[row][col]) {
+          print(1);
+        } 
+        else {
+          print(0);
+        }
+      }
+      println();
+    }
 
+    dst  = createImage(350, 350, RGB);
+    opencv.toPImage(unWarpedMarker, dst);
+
+  } else {
+    dst = null;   // removes image of tag so it's not printed when it's not detected.
   }
 
   /*
@@ -206,9 +208,9 @@ void draw () {
   smooth();
   strokeWeight(5);
   stroke(0, 0, 255);
-	drawContours2f(approximations);
-	stroke(255, 0, 0);
-	drawContours2f(nonresult);
+  drawContours2f(approximations);
+  stroke(255, 0, 0);
+  drawContours2f(nonresult);
   stroke(0, 255, 0);
   drawContours2f(markers);  
   popMatrix();
@@ -216,31 +218,31 @@ void draw () {
   /*
    * draw binarization video
    */
-	pushMatrix();
+  pushMatrix();
   scale(windowScale);
-	translate(videoWidth*0.7, 0);
-	scale(0.35);
-	image(dst3, 0, 0);
+  translate(videoWidth*0.7, 0);
+  scale(0.35);
+  image(dst3, 0, 0);
   stroke(0, 255, 0);
   drawContours2f(markers);  
-	popMatrix();
+  popMatrix();
 
   /*
    * draw contours video
    */
-	pushMatrix();
+  pushMatrix();
   scale(windowScale);
-	translate(videoWidth*0.7, 0);
-	scale(0.35);
+  translate(videoWidth*0.7, 0);
+  scale(0.35);
   translate(0, videoHeight);
-	image(dst4, 0, 0);
+  image(dst4, 0, 0);
   stroke(0, 255, 0);
   drawContours2f(markers);  
-	popMatrix();
+  popMatrix();
 
   pushMatrix();
-	scale(0.5);
-  translate(videoWidth, videoHeight);
+  scale(0.5);
+  translate(0, 0);
   strokeWeight(1);
   if (null != dst) {
 		image(dst, 0, 0);
