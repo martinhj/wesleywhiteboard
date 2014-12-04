@@ -87,7 +87,7 @@ void setup () {
  * processing sketch's main loop.
  */
 void draw () {
-  //background(125);
+  
   opencv.loadImage(video);
   src = video;
 
@@ -144,6 +144,7 @@ void draw () {
    * this lines need to do an loop to check all markers.
    */
   println("running for loop: " + frameCount);
+  println("number of markers found: " + markers.size());
   for (MatOfPoint2f marker : markers) {
     transform = Imgproc.getPerspectiveTransform(marker, canonicalMarker);
     Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
@@ -196,12 +197,14 @@ void draw () {
       }
       println();
     }
+    println();
   }
   // end for loop
 
 
 
 
+  /*
   if (!markers.isEmpty()) { 
     transform = Imgproc.getPerspectiveTransform(markers.get(0), canonicalMarker);
     Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
@@ -258,6 +261,7 @@ void draw () {
   } else {
     dst = null;   // removes image of tag so it's not printed when it's not detected.
   }
+  */
 
   /*
    * draw source video
