@@ -52,9 +52,8 @@ int videoWidth, videoHeight;
 void setup () {
   videoWidth = 1280;
   videoHeight = 720;
-  //videoWidth = 960;
-  //videoHeight = 540;
-  windowScale = (float) 960 / videoWidth ;
+  
+  windowScale = (float) 960 / videoWidth ; // to scale down the video and window
   println(windowScale);
   int windowWidth = (int)round((videoWidth*0.7 + videoWidth*0.35) * windowScale);
   int windowHeight = (int) round((videoHeight*0.7) * windowScale);
@@ -153,6 +152,7 @@ void draw () {
 
 
     /*draw out markers */
+    /*
     PImage dst1 = createImage(350, 350, RGB);
     opencv.toPImage(unWarpedMarker, dst1);
     pushMatrix();
@@ -165,6 +165,7 @@ void draw () {
     scale(0.4);
     image(dst2, videoWidth, videoHeight*1.4);
     popMatrix();
+    */
 
 
 
