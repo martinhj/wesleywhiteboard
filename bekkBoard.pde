@@ -240,13 +240,15 @@ void draw () {
   drawContours2f(markers);  
   popMatrix();
 
+  /*
+   * draw tags in video
+   */
   pushMatrix();
   scale(0.5);
   translate(0, 0);
   strokeWeight(1);
   if (null != dst) {
-		image(dst, 0, 0);
-
+    image(dst, 0, 0);
 		float cellSize = dst.width/7.0;
 	}
 
