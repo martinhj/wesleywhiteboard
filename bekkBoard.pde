@@ -195,11 +195,13 @@ void draw () {
 
   }
 
+  /*
+   * draw source video
+   */
   pushMatrix();
   scale(windowScale);
   scale(0.7);
   image(src, 0, 0);
-
   noFill();
   smooth();
   strokeWeight(5);
@@ -211,6 +213,9 @@ void draw () {
   drawContours2f(markers);  
   popMatrix();
 
+  /*
+   * draw binarization video
+   */
 	pushMatrix();
   scale(windowScale);
 	translate(videoWidth*0.7, 0);
@@ -220,6 +225,9 @@ void draw () {
   drawContours2f(markers);  
 	popMatrix();
 
+  /*
+   * draw contours video
+   */
 	pushMatrix();
   scale(windowScale);
 	translate(videoWidth*0.7, 0);
