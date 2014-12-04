@@ -42,17 +42,24 @@ int thresholdval2 = 7;
 int blurval = 5;
 float epsMultiplier = 0.01;
 
+int videoWidth, videoHeight;
+
 
 /**
  * processing sketch main setup.
  */
 void setup () {
-  size(960,540);
+  videoWidth = 1280;
+  videoHeight = 720;
+  //videoWidth = 960;
+  //videoHeight = 540;
+  int windowWidth = (int)round(videoWidth*0.7 + videoWidth*0.35) + 2;
+
+  size(windowWidth, (int) round(videoHeight*0.7));
 	//video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
-	video = new Capture(this, width, height);
-  opencv = new OpenCV(this, width, height);
+	video = new Capture(this, videoWidth, videoHeight);
+  opencv = new OpenCV(this, videoWidth, videoHeight);
 	  
-	/*
 	String[] cameras = Capture.list();
 	if (cameras.length == 0) {
 		println("There are no cameras available for capture.");
@@ -63,7 +70,6 @@ void setup () {
 			println(cameras[i]);
 		}
 	}
-	*/
 
 
   video.start();
@@ -97,13 +103,13 @@ void draw () {
       thresholdval1, thresholdval2);
 
 
-	PImage dst3 = createImage(width, height, RGB);
+	PImage dst3 = createImage(videoWidth, videoHeight, RGB);
 	opencv.toPImage(thresholdMat, dst3);
 
   contours = new ArrayList<MatOfPoint>();
   Imgproc.findContours(thresholdMat, contours, new Mat(), Imgproc.RETR_LIST,
       Imgproc.CHAIN_APPROX_NONE);
-	PImage dst4 = createImage(width, height, RGB);
+	PImage dst4 = createImage(videoWidth, videoHeight, RGB);
 	opencv.toPImage(thresholdMat, dst4);
 
   approximations = createPolygonApproximations(contours);
@@ -137,13 +143,13 @@ void draw () {
 			opencv.toPImage(unWarpedMarker, dst1);
 			pushMatrix();
 			scale(0.4);
-			image(dst1, 0, height*1.4);
+			image(dst1, 0, videoHeight*1.4);
 			popMatrix();
 			PImage dst2 = createImage(350, 350, RGB);
 			opencv.toPImage(markers.get(0), dst2);
 			pushMatrix();
 			scale(0.4);
-			image(dst2, width, height*1.4);
+			image(dst2, videoWidth, videoHeight*1.4);
 			popMatrix();
 		}
 
@@ -183,12 +189,8 @@ void draw () {
 
   }
 
-  //scale(2);
-  /*image(video, 0, 0);*/
-  /*image(dst, width/2, 0);*/
-
   pushMatrix();
-  scale(0.5);
+  scale(0.7);
   image(src, 0, 0);
 
   noFill();
@@ -203,16 +205,17 @@ void draw () {
   popMatrix();
 
 	pushMatrix();
-	scale(0.5);
-	translate(width, 0);
+	translate(videoWidth*0.7, 0);
+	scale(0.35);
 	image(dst3, 0, 0);
   stroke(0, 255, 0);
   drawContours2f(markers);  
 	popMatrix();
 
 	pushMatrix();
-	scale(0.5);
-	translate(0, height);
+	translate(videoWidth*0.7, 0);
+	scale(0.35);
+  translate(0, videoHeight);
 	image(dst4, 0, 0);
   stroke(0, 255, 0);
   drawContours2f(markers);  
@@ -220,7 +223,7 @@ void draw () {
 
   pushMatrix();
 	scale(0.5);
-  translate(width, height);
+  translate(videoWidth, videoHeight);
   strokeWeight(1);
   if (null != dst) {
 		image(dst, 0, 0);
