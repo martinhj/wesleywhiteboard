@@ -41,6 +41,7 @@ int thresholdval1 = 7;
 int thresholdval2 = 7;
 int blurval = 5;
 float epsMultiplier = 0.01;
+float windowScale;
 
 int videoWidth, videoHeight;
 
@@ -53,13 +54,17 @@ void setup () {
   videoHeight = 720;
   //videoWidth = 960;
   //videoHeight = 540;
-  int windowWidth = (int)round(videoWidth*0.7 + videoWidth*0.35) + 2;
+  windowScale = (float) 960 / videoWidth ;
+  println(windowScale);
+  int windowWidth = (int)round((videoWidth*0.7 + videoWidth*0.35) * windowScale);
+  int windowHeight = (int) round((videoHeight*0.7) * windowScale);
 
-  size(windowWidth, (int) round(videoHeight*0.7));
+  size(windowWidth, windowHeight);
 	//video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
 	video = new Capture(this, videoWidth, videoHeight);
   opencv = new OpenCV(this, videoWidth, videoHeight);
 	  
+  /*
 	String[] cameras = Capture.list();
 	if (cameras.length == 0) {
 		println("There are no cameras available for capture.");
@@ -70,6 +75,7 @@ void setup () {
 			println(cameras[i]);
 		}
 	}
+  */
 
 
   video.start();
@@ -190,6 +196,7 @@ void draw () {
   }
 
   pushMatrix();
+  scale(windowScale);
   scale(0.7);
   image(src, 0, 0);
 
@@ -205,6 +212,7 @@ void draw () {
   popMatrix();
 
 	pushMatrix();
+  scale(windowScale);
 	translate(videoWidth*0.7, 0);
 	scale(0.35);
 	image(dst3, 0, 0);
@@ -213,6 +221,7 @@ void draw () {
 	popMatrix();
 
 	pushMatrix();
+  scale(windowScale);
 	translate(videoWidth*0.7, 0);
 	scale(0.35);
   translate(0, videoHeight);
