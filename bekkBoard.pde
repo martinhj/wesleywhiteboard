@@ -35,9 +35,14 @@ boolean[][] markerCells;
 
 //int thresholdval1, thresholdval2;
 
+/*
 int thresholdval1 = 451;
 int thresholdval2 = -65;
+*/
+int thresholdval1 = 7;
+int thresholdval2 = 7;
 int blurval = 5;
+float epsMultiplier = 0.01;
 
 
 /**
@@ -45,8 +50,8 @@ int blurval = 5;
  */
 void setup () {
   size(960,540);
-	video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
-	//video = new Capture(this, width, height);
+	//video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
+	video = new Capture(this, width, height);
   opencv = new OpenCV(this, width, height);
 	  
 	/*
@@ -262,7 +267,7 @@ void captureEvent(Capture c) {
  *
  */
 ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
-  float minAllowedContourSide = 50;
+  float minAllowedContourSide = 25;
   minAllowedContourSide = minAllowedContourSide * minAllowedContourSide;
 
   ArrayList<MatOfPoint2f> result = new ArrayList<MatOfPoint2f>();
@@ -315,10 +320,13 @@ ArrayList<MatOfPoint2f> createPolygonApproximations(ArrayList<MatOfPoint> cntrs)
   ArrayList<MatOfPoint2f> result = new ArrayList<MatOfPoint2f>();
 
 	if (!cntrs.isEmpty()) {
-		double epsilon = cntrs.get(0).size().height * 0.01;
+		double epsilon = 0;
 		println(":" + epsilon);
 
+    int counter = 0;
 		for (MatOfPoint contour : cntrs) {
+      epsilon = cntrs.get(counter).size().height * 0.15;
+      counter++;
 			MatOfPoint2f approx = new MatOfPoint2f();
 			Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), approx,
 					epsilon, true);
@@ -365,6 +373,14 @@ void drawContours2f(ArrayList<MatOfPoint2f> cntrs) {
 
 void keyPressed() {
   switch (key) {
+    case 'f':
+      epsMultiplier -= 0.01;
+      println(epsMultiplier);
+      break;
+    case 'v':
+      epsMultiplier += 0.01;
+      println(epsMultiplier);
+      break;
     case 'd':
       blurval -= 1;
       println(blurval);
