@@ -33,8 +33,6 @@ ArrayList<MatOfPoint2f> nonresult = new ArrayList<MatOfPoint2f>();
 
 boolean[][] markerCells;
 
-//int thresholdval1, thresholdval2;
-
 /*
 int thresholdval1 = 451;
 int thresholdval2 = -65;
@@ -190,7 +188,7 @@ void draw () {
   /*image(dst, width/2, 0);*/
 
   pushMatrix();
-  scale(1);
+  scale(0.5);
   image(src, 0, 0);
 
   noFill();
