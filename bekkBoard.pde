@@ -140,6 +140,68 @@ void draw () {
   if (!markers.isEmpty()) println("num points: " + markers.get(0).height());
 
   Mat transform;
+  /*
+   * this lines need to do an loop to check all markers.
+   */
+  println("running for loop: " + frameCount);
+  for (MatOfPoint2f marker : markers) {
+    transform = Imgproc.getPerspectiveTransform(marker, canonicalMarker);
+    Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
+    Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
+
+
+
+    /*draw out markers */
+    PImage dst1 = createImage(350, 350, RGB);
+    opencv.toPImage(unWarpedMarker, dst1);
+    pushMatrix();
+    scale(0.4);
+    image(dst1, 0, videoHeight*1.4);
+    popMatrix();
+    PImage dst2 = createImage(350, 350, RGB);
+    opencv.toPImage(marker, dst2);
+    pushMatrix();
+    scale(0.4);
+    image(dst2, videoWidth, videoHeight*1.4);
+    popMatrix();
+
+
+
+    Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
+        Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+
+    float cellSize = 350/7.0;
+
+    markerCells = new boolean[7][7];
+
+    for (int row = 0; row < 7; row++) {
+      for (int col = 0; col < 7; col++) {
+        int cellX = int(col*cellSize);
+        int cellY = int(row*cellSize);
+
+        Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
+            cellY+ (int)cellSize); 
+        markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
+      }
+    }
+
+    for (int col = 0; col < 7; col++) {
+      for (int row = 0; row < 7; row++) {
+        if (markerCells[row][col]) {
+          print(1);
+        } 
+        else {
+          print(0);
+        }
+      }
+      println();
+    }
+  }
+  // end for loop
+
+
+
+
   if (!markers.isEmpty()) { 
     transform = Imgproc.getPerspectiveTransform(markers.get(0), canonicalMarker);
     Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
