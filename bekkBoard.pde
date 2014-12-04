@@ -29,18 +29,38 @@ ArrayList<MatOfPoint> contours;
 ArrayList<MatOfPoint2f> approximations;
 ArrayList<MatOfPoint2f> markers;
 
+ArrayList<MatOfPoint2f> nonresult = new ArrayList<MatOfPoint2f>();
 
 boolean[][] markerCells;
 
+//int thresholdval1, thresholdval2;
+
+int thresholdval1 = 451;
+int thresholdval2 = -65;
+int blurval = 5;
 
 
 /**
  * processing sketch main setup.
  */
 void setup () {
-  size(640, 480);
-  video = new Capture(this, 640, 480);
-  opencv = new OpenCV(this, 640, 480);
+  size(960,540);
+	video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
+	//video = new Capture(this, width, height);
+  opencv = new OpenCV(this, width, height);
+	  
+	/*
+	String[] cameras = Capture.list();
+	if (cameras.length == 0) {
+		println("There are no cameras available for capture.");
+		exit();
+	} else {
+		println("Available cameras:");
+		for (int i = 0; i < cameras.length; i++) {
+			println(cameras[i]);
+		}
+	}
+	*/
 
 
   video.start();
@@ -52,6 +72,7 @@ void setup () {
  * processing sketch's main loop.
  */
 void draw () {
+  //background(125);
   opencv.loadImage(video);
   src = video;
 
@@ -63,19 +84,24 @@ void draw () {
 
   Mat thresholdMat = OpenCV.imitate(opencv.getGray());
 
+	
 
+  opencv.blur(blurval);
 
-  opencv.blur(5);
-
-
-
+	
   Imgproc.adaptiveThreshold(opencv.getGray(), thresholdMat,
       255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV,
-      451, -65);
+      thresholdval1, thresholdval2);
+
+
+	PImage dst3 = createImage(width, height, RGB);
+	opencv.toPImage(thresholdMat, dst3);
 
   contours = new ArrayList<MatOfPoint>();
   Imgproc.findContours(thresholdMat, contours, new Mat(), Imgproc.RETR_LIST,
       Imgproc.CHAIN_APPROX_NONE);
+	PImage dst4 = createImage(width, height, RGB);
+	opencv.toPImage(thresholdMat, dst4);
 
   approximations = createPolygonApproximations(contours);
 
@@ -103,6 +129,20 @@ void draw () {
     transform = Imgproc.getPerspectiveTransform(markers.get(0), canonicalMarker);
     Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
     Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
+		if (markers.size() >= 1) {
+			PImage dst1 = createImage(350, 350, RGB);
+			opencv.toPImage(unWarpedMarker, dst1);
+			pushMatrix();
+			scale(0.4);
+			image(dst1, 0, height*1.4);
+			popMatrix();
+			PImage dst2 = createImage(350, 350, RGB);
+			opencv.toPImage(markers.get(0), dst2);
+			pushMatrix();
+			scale(0.4);
+			image(dst2, width, height*1.4);
+			popMatrix();
+		}
 
 
   Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
@@ -141,31 +181,53 @@ void draw () {
   }
 
   //scale(2);
-  image(video, 0, 0);
-  image(dst, width/2, 0);
+  /*image(video, 0, 0);*/
+  /*image(dst, width/2, 0);*/
 
   pushMatrix();
-  background(125);
-  scale(0.5);
+  scale(1);
   image(src, 0, 0);
 
   noFill();
   smooth();
   strokeWeight(5);
+  stroke(0, 0, 255);
+	drawContours2f(approximations);
+	stroke(255, 0, 0);
+	drawContours2f(nonresult);
   stroke(0, 255, 0);
   drawContours2f(markers);  
   popMatrix();
 
+	pushMatrix();
+	scale(0.5);
+	translate(width, 0);
+	image(dst3, 0, 0);
+  stroke(0, 255, 0);
+  drawContours2f(markers);  
+	popMatrix();
+
+	pushMatrix();
+	scale(0.5);
+	translate(0, height);
+	image(dst4, 0, 0);
+  stroke(0, 255, 0);
+  drawContours2f(markers);  
+	popMatrix();
+
   pushMatrix();
-	scale(0.7);
-  translate(src.width/2, 0);
+	scale(0.5);
+  translate(width, height);
   strokeWeight(1);
-  image(dst, 0, 0);
+  if (null != dst) {
+		image(dst, 0, 0);
 
-  float cellSize = dst.width/7.0;
+		float cellSize = dst.width/7.0;
+	}
 
 
 
+	/*
   for (int col = 0; col < 7; col++) {
     for (int row = 0; row < 7; row++) {
       if(markerCells[row][col]){
@@ -179,6 +241,7 @@ void draw () {
       //line(0, i*cellSize, dst.width, i*cellSize);
     }
   }
+	*/
 
   popMatrix();
 
@@ -203,10 +266,13 @@ ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
   minAllowedContourSide = minAllowedContourSide * minAllowedContourSide;
 
   ArrayList<MatOfPoint2f> result = new ArrayList<MatOfPoint2f>();
+  nonresult = new ArrayList<MatOfPoint2f>();
 
   for (MatOfPoint2f candidate : candidates) {
+		//println(candidate.size().height);
 
     if (candidate.size().height != 4) {
+			nonresult.add(candidate);
       continue;
     } 
 
@@ -235,6 +301,7 @@ ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
 
     result.add(candidate);
   }
+	
 
   return result;
 }
@@ -247,15 +314,17 @@ ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
 ArrayList<MatOfPoint2f> createPolygonApproximations(ArrayList<MatOfPoint> cntrs) {
   ArrayList<MatOfPoint2f> result = new ArrayList<MatOfPoint2f>();
 
-  double epsilon = cntrs.get(0).size().height * 0.01;
-  println(epsilon);
+	if (!cntrs.isEmpty()) {
+		double epsilon = cntrs.get(0).size().height * 0.01;
+		println(":" + epsilon);
 
-  for (MatOfPoint contour : cntrs) {
-    MatOfPoint2f approx = new MatOfPoint2f();
-    Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), approx,
-        epsilon, true);
-    result.add(approx);
-  }
+		for (MatOfPoint contour : cntrs) {
+			MatOfPoint2f approx = new MatOfPoint2f();
+			Imgproc.approxPolyDP(new MatOfPoint2f(contour.toArray()), approx,
+					epsilon, true);
+			result.add(approx);
+		}
+	}
 
   return result;
 }
@@ -290,5 +359,51 @@ void drawContours2f(ArrayList<MatOfPoint2f> cntrs) {
       vertex((float)points[i].x, (float)points[i].y);
     }
     endShape(CLOSE);
+  }
+}
+
+
+void keyPressed() {
+  switch (key) {
+    case 'd':
+      blurval -= 1;
+      println(blurval);
+      break;
+    case 'c':
+      blurval += 1;
+      println(blurval);
+      break;
+    case 'a':
+      thresholdval1 -= 2;
+      println(thresholdval1);
+      break;
+    case 'z':
+      thresholdval1 += 2;
+      println(thresholdval1);
+      break;
+    case 's': 
+      thresholdval2 -= 1;
+      println(thresholdval2);
+      break;
+    case 'x':
+      thresholdval2 += 1;
+      println(thresholdval2);
+      break;
+    case 'A':
+      thresholdval1 -= 10;
+      println(thresholdval1);
+      break;
+    case 'Z':
+      thresholdval1 += 10;
+      println(thresholdval1);
+      break;
+    case 'S': 
+      thresholdval2 -= 10;
+      println(thresholdval2);
+      break;
+    case 'X':
+      thresholdval2 += 10;
+      println(thresholdval2);
+      break;
   }
 }
