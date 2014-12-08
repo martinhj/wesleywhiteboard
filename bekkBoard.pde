@@ -25,24 +25,27 @@ OpenCV opencv;
 
 PImage src, dst, markerImg;
 
+PImage dst1, dst2;
+
+ArrayList<PImage> markersImages;
+ArrayList<PImage> markersImagesThresholded;
+
 ArrayList<MatOfPoint> contours;
 ArrayList<MatOfPoint2f> approximations;
 ArrayList<MatOfPoint2f> markers;
 
-ArrayList<MatOfPoint2f> nonresult = new ArrayList<MatOfPoint2f>();
+ArrayList<MatOfPoint2f> nonresult;
 
 boolean[][] markerCells;
 
-/*
-int thresholdval1 = 451;
-int thresholdval2 = -65;
-*/
-int thresholdval1 = 7;
-int thresholdval2 = 7;
-int blurval = 5;
-float epsMultiplier = 0.01;
-float windowScale;
+int thresholdval1;
+int thresholdval2;
+int blurval;
+float epsMultiplier;
 
+
+
+float windowScale;
 int videoWidth, videoHeight;
 
 
@@ -50,6 +53,8 @@ int videoWidth, videoHeight;
  * processing sketch main setup.
  */
 void setup () {
+  setThreshold();
+
   videoWidth = 1280;
   videoHeight = 720;
   
@@ -139,12 +144,30 @@ void draw () {
   if (!markers.isEmpty()) println("num points: " + markers.get(0).height());
 
   Mat transform;
+
+
+
+  /**
+   * put this into a method on it's own.
+   * - warps perspective.
+   * - applies threshold.
+   * - creates cells.
+   * - prints out marker code.
+   */
   /*
    * this lines need to do an loop to check all markers.
    */
   println("running for loop: " + frameCount);
   println("number of markers found: " + markers.size());
+
+  markersImages = new ArrayList<PImage>();
+  markersImagesThresholded = new ArrayList<PImage>();
   for (MatOfPoint2f marker : markers) {
+    /*
+     * legge til en arrayList med markers med en viss kode in som vinkler - to
+     * vinkler i en arrayList. Finne ut hvem som er på hvilken side og finne
+     * rektangelet mellom disse. Fjerne innholdet i arraylisten etterpå.
+     */
     transform = Imgproc.getPerspectiveTransform(marker, canonicalMarker);
     Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
     Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
@@ -153,24 +176,31 @@ void draw () {
 
     /*draw out markers */
     /*
-    PImage dst1 = createImage(350, 350, RGB);
-    opencv.toPImage(unWarpedMarker, dst1);
-    pushMatrix();
-    scale(0.4);
-    image(dst1, 0, videoHeight*1.4);
-    popMatrix();
-    PImage dst2 = createImage(350, 350, RGB);
-    opencv.toPImage(marker, dst2);
-    pushMatrix();
-    scale(0.4);
-    image(dst2, videoWidth, videoHeight*1.4);
-    popMatrix();
-    */
+       PImage dst1 = createImage(350, 350, RGB);
+       opencv.toPImage(unWarpedMarker, dst1);
+       pushMatrix();
+       scale(0.4);
+       image(dst1, 0, videoHeight*1.4);
+       popMatrix();
+       PImage dst2 = createImage(350, 350, RGB);
+       opencv.toPImage(marker, dst2);
+       pushMatrix();
+       scale(0.4);
+       image(dst2, videoWidth, videoHeight*1.4);
+       popMatrix();
+     */
 
 
+    dst2 = createImage(350, 350, RGB);
+    opencv.toPImage(unWarpedMarker, dst2);
+    markersImages.add(dst2);
 
     Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
         Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+
+    dst1 = createImage(350, 350, RGB);
+    opencv.toPImage(unWarpedMarker, dst1);
+    markersImagesThresholded.add(dst1);
 
     float cellSize = 350/7.0;
 
@@ -275,9 +305,9 @@ void draw () {
   smooth();
   strokeWeight(5);
   stroke(0, 0, 255);
-  drawContours2f(approximations);
+  //drawContours2f(approximations);
   stroke(255, 0, 0);
-  drawContours2f(nonresult);
+  //drawContours2f(nonresult);
   stroke(0, 255, 0);
   drawContours2f(markers);  
   popMatrix();
@@ -318,6 +348,30 @@ void draw () {
     image(dst, 0, 0);
 		float cellSize = dst.width/7.0;
 	}
+
+
+
+
+  /*
+   *  draw unwarped tag in video
+   */
+  pushMatrix();
+  scale(0.4);
+  int placement = 0;
+  for (PImage img: markersImages) {
+    image(img, placement, 0);
+    placement += img.width;
+  }
+  popMatrix();
+
+  pushMatrix();
+  scale(0.4);
+  placement = 0;
+  for (PImage img: markersImagesThresholded) {
+    image(img, placement, img.height);
+    placement += img.width;
+  }
+  popMatrix();
 
 
 
@@ -460,8 +514,19 @@ void drawContours2f(ArrayList<MatOfPoint2f> cntrs) {
 }
 
 
+void setThreshold() {
+  thresholdval1 = 21;
+  thresholdval2 = 7;
+  blurval = 5;
+  epsMultiplier = 0.01;
+}
+
+
 void keyPressed() {
   switch (key) {
+    case 'r':
+      setThreshold();
+      break;
     case 'f':
       epsMultiplier -= 0.01;
       println(epsMultiplier);
@@ -480,6 +545,10 @@ void keyPressed() {
       break;
     case 'a':
       thresholdval1 -= 2;
+      if (thresholdval1 < 3) {
+        thresholdval1 = 3;
+        println("can't go lower");
+      }
       println(thresholdval1);
       break;
     case 'z':
