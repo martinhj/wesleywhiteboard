@@ -159,140 +159,81 @@ void draw () {
    */
   println("running for loop: " + frameCount);
   println("number of markers found: " + markers.size());
-
-  markersImages = new ArrayList<PImage>();
-  markersImagesThresholded = new ArrayList<PImage>();
-  for (MatOfPoint2f marker : markers) {
-    /*
-     * legge til en arrayList med markers med en viss kode in som vinkler - to
-     * vinkler i en arrayList. Finne ut hvem som er på hvilken side og finne
-     * rektangelet mellom disse. Fjerne innholdet i arraylisten etterpå.
-     */
-    transform = Imgproc.getPerspectiveTransform(marker, canonicalMarker);
-    Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
-    Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
-
+markersImages = new ArrayList<PImage>();
+markersImagesThresholded = new ArrayList<PImage>();
+for (MatOfPoint2f marker : markers) {
+  /*
+   * legge til en arrayList med markers med en viss kode in som vinkler - to
+   * vinkler i en arrayList. Finne ut hvem som er på hvilken side og finne
+   * rektangelet mellom disse. Fjerne innholdet i arraylisten etterpå.
+   */
+  transform = Imgproc.getPerspectiveTransform(marker, canonicalMarker);
+  Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
+  Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
 
 
-    /*draw out markers */
-    /*
-       PImage dst1 = createImage(350, 350, RGB);
-       opencv.toPImage(unWarpedMarker, dst1);
-       pushMatrix();
-       scale(0.4);
-       image(dst1, 0, videoHeight*1.4);
-       popMatrix();
-       PImage dst2 = createImage(350, 350, RGB);
-       opencv.toPImage(marker, dst2);
-       pushMatrix();
-       scale(0.4);
-       image(dst2, videoWidth, videoHeight*1.4);
-       popMatrix();
-     */
+
+  /*draw out markers */
+  /*
+  PImage dst1 = createImage(350, 350, RGB);
+  opencv.toPImage(unWarpedMarker, dst1);
+  pushMatrix();
+  scale(0.4);
+  image(dst1, 0, videoHeight*1.4);
+  popMatrix();
+  PImage dst2 = createImage(350, 350, RGB);
+  opencv.toPImage(marker, dst2);
+  pushMatrix();
+  scale(0.4);
+  image(dst2, videoWidth, videoHeight*1.4);
+  popMatrix();
+  */
 
 
-    dst2 = createImage(350, 350, RGB);
-    opencv.toPImage(unWarpedMarker, dst2);
-    markersImages.add(dst2);
+  dst2 = createImage(350, 350, RGB);
+  opencv.toPImage(unWarpedMarker, dst2);
+  markersImages.add(dst2);
 
-    Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
-        Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
+  Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
+      Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
 
-    dst1 = createImage(350, 350, RGB);
-    opencv.toPImage(unWarpedMarker, dst1);
-    markersImagesThresholded.add(dst1);
+  dst1 = createImage(350, 350, RGB);
+  opencv.toPImage(unWarpedMarker, dst1);
+  markersImagesThresholded.add(dst1);
 
-    float cellSize = 350/7.0;
+  float cellSize = 350/7.0;
 
-    markerCells = new boolean[7][7];
+  markerCells = new boolean[7][7];
 
-    for (int row = 0; row < 7; row++) {
-      for (int col = 0; col < 7; col++) {
-        int cellX = int(col*cellSize);
-        int cellY = int(row*cellSize);
-
-        Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
-            cellY+ (int)cellSize); 
-        markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
-      }
-    }
-
+  for (int row = 0; row < 7; row++) {
     for (int col = 0; col < 7; col++) {
-      for (int row = 0; row < 7; row++) {
-        if (markerCells[row][col]) {
-          print(1);
-        } 
-        else {
-          print(0);
-        }
+      int cellX = int(col*cellSize);
+      int cellY = int(row*cellSize);
+
+      Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
+          cellY+ (int)cellSize); 
+      markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
+    }
+  }
+
+  for (int col = 0; col < 7; col++) {
+    for (int row = 0; row < 7; row++) {
+      if (markerCells[row][col]) {
+        print(1);
+      } 
+      else {
+        print(0);
       }
-      println();
     }
     println();
   }
+  println();
+}
   // end for loop
 
 
 
 
-  /*
-  if (!markers.isEmpty()) { 
-    transform = Imgproc.getPerspectiveTransform(markers.get(0), canonicalMarker);
-    Mat unWarpedMarker = new Mat(50, 50, CvType.CV_8UC1);  
-    Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
-		if (markers.size() >= 1) {
-			PImage dst1 = createImage(350, 350, RGB);
-			opencv.toPImage(unWarpedMarker, dst1);
-			pushMatrix();
-			scale(0.4);
-			image(dst1, 0, videoHeight*1.4);
-			popMatrix();
-			PImage dst2 = createImage(350, 350, RGB);
-			opencv.toPImage(markers.get(0), dst2);
-			pushMatrix();
-			scale(0.4);
-			image(dst2, videoWidth, videoHeight*1.4);
-			popMatrix();
-		}
-
-
-    Imgproc.threshold(unWarpedMarker, unWarpedMarker, 125, 255,
-        Imgproc.THRESH_BINARY | Imgproc.THRESH_OTSU);
-
-    float cellSize = 350/7.0;
-
-    markerCells = new boolean[7][7];
-
-    for (int row = 0; row < 7; row++) {
-      for (int col = 0; col < 7; col++) {
-        int cellX = int(col*cellSize);
-        int cellY = int(row*cellSize);
-
-        Mat cell = unWarpedMarker.submat(cellX, cellX +(int)cellSize, cellY, 
-            cellY+ (int)cellSize); 
-        markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
-      }
-    }
-
-    for (int col = 0; col < 7; col++) {
-      for (int row = 0; row < 7; row++) {
-        if (markerCells[row][col]) {
-          print(1);
-        } 
-        else {
-          print(0);
-        }
-      }
-      println();
-    }
-
-    dst  = createImage(350, 350, RGB);
-    opencv.toPImage(unWarpedMarker, dst);
-
-  } else {
-    dst = null;   // removes image of tag so it's not printed when it's not detected.
-  }
-  */
 
   /*
    * draw source video
