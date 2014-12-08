@@ -19,9 +19,7 @@ int videoWidth, videoHeight;
 MarkerCodes markerCodes;
 
 
-void test() {
-  println("test");
-}
+
 /**
  * processing sketch main setup.
  */
@@ -47,7 +45,6 @@ void setup () {
   println(this);
 
   markerCodes = new MarkerCodes(this, opencv, videoWidth, videoHeight);
-  markerCodes.test();
 	  
   /*
 	String[] cameras = Capture.list();
