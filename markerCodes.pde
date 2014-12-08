@@ -29,7 +29,7 @@ class MarkerCodes {
 
   boolean[][] markerCells;
 
-  ArrayList<PImage> markersImages;
+  ArrayList<PImage> markersImages = new ArrayList<PImage>();
   ArrayList<PImage> markersImagesThresholded = new ArrayList<PImage>();
 
   bekkBoard parent;
@@ -181,20 +181,14 @@ class MarkerCodes {
    * this lines need to do an loop to check all markers.
    */
 
-  MatOfPoint2f canonicalMarker = new MatOfPoint2f();
-  Point[] canonicalPoints = new Point[4];
-  canonicalPoints[0] = new Point(0, 350);
-  canonicalPoints[1] = new Point(0, 0);
-  canonicalPoints[2] = new Point(350, 0);
-  canonicalPoints[3] = new Point(350, 350);
-  canonicalMarker.fromArray(canonicalPoints);
+  MatOfPoint2f canonicalMarker = setupCanonicalMarker();
 
   Mat transform;
 
   
   println("number of markers found: " + markers.size());
-markersImages = new ArrayList<PImage>();
-markersImagesThresholded.clear();
+  markersImages = new ArrayList<PImage>();
+  markersImagesThresholded.clear();
 
 
 
@@ -462,6 +456,18 @@ void drawContours2f(ArrayList<MatOfPoint2f> cntrs) {
   }
 }
 
+
+
+private MatOfPoint2f setupCanonicalMarker() {
+  MatOfPoint2f canonicalMarker = new MatOfPoint2f();
+  Point[] canonicalPoints = new Point[4];
+  canonicalPoints[0] = new Point(0, 350);
+  canonicalPoints[1] = new Point(0, 0);
+  canonicalPoints[2] = new Point(350, 0);
+  canonicalPoints[3] = new Point(350, 350);
+  canonicalMarker.fromArray(canonicalPoints);
+  return canonicalMarker;
+}
 
 public void setThreshold() {
   thresholdval1 = 21;
