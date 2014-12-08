@@ -12,6 +12,8 @@ import org.opencv.core.CvType;
 import org.opencv.core.Point;
 import org.opencv.core.Size;
 
+
+
 class MarkerCodes {
 
   PImage src, dst, markerImg;
@@ -41,6 +43,9 @@ class MarkerCodes {
   float epsMultiplier;
 
 
+  /**
+   * MarkerCodes class constructor.
+   */
   public MarkerCodes (bekkBoard parent, OpenCV opencv, int width, int height) {
     this.parent = parent;
     this.opencv = opencv;
@@ -49,9 +54,6 @@ class MarkerCodes {
     setThreshold();
   }
 
-  void test() {
-    parent.test();
-  }
   ArrayList<int []> getMarkerCodes () {
     ArrayList<int []> markerCodes = new ArrayList<int []>();
     return markerCodes;
