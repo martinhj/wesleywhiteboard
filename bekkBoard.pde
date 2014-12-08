@@ -112,15 +112,16 @@ void draw () {
       255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV,
       thresholdval1, thresholdval2);
 
-
+  
 	PImage dst3 = createImage(videoWidth, videoHeight, RGB);
-	opencv.toPImage(thresholdMat, dst3);
+	opencv.toPImage(thresholdMat, dst3); // image upper right corner
 
   contours = new ArrayList<MatOfPoint>();
   Imgproc.findContours(thresholdMat, contours, new Mat(), Imgproc.RETR_LIST,
       Imgproc.CHAIN_APPROX_NONE);
+
 	PImage dst4 = createImage(videoWidth, videoHeight, RGB);
-	opencv.toPImage(thresholdMat, dst4);
+	opencv.toPImage(thresholdMat, dst4); // image lower right corner
 
   approximations = createPolygonApproximations(contours);
 
@@ -133,17 +134,6 @@ void draw () {
 
 
 
-  MatOfPoint2f canonicalMarker = new MatOfPoint2f();
-  Point[] canonicalPoints = new Point[4];
-  canonicalPoints[0] = new Point(0, 350);
-  canonicalPoints[1] = new Point(0, 0);
-  canonicalPoints[2] = new Point(350, 0);
-  canonicalPoints[3] = new Point(350, 350);
-  canonicalMarker.fromArray(canonicalPoints);
-
-  if (!markers.isEmpty()) println("num points: " + markers.get(0).height());
-
-  Mat transform;
 
 
 
@@ -157,7 +147,18 @@ void draw () {
   /*
    * this lines need to do an loop to check all markers.
    */
-  println("running for loop: " + frameCount);
+
+  MatOfPoint2f canonicalMarker = new MatOfPoint2f();
+  Point[] canonicalPoints = new Point[4];
+  canonicalPoints[0] = new Point(0, 350);
+  canonicalPoints[1] = new Point(0, 0);
+  canonicalPoints[2] = new Point(350, 0);
+  canonicalPoints[3] = new Point(350, 350);
+  canonicalMarker.fromArray(canonicalPoints);
+
+  Mat transform;
+
+  
   println("number of markers found: " + markers.size());
 markersImages = new ArrayList<PImage>();
 markersImagesThresholded = new ArrayList<PImage>();
@@ -260,17 +261,6 @@ for (MatOfPoint2f marker : markers) {
   drawContours2f(markers);  
   popMatrix();
 
-  /*
-   * draw tags in video
-   */
-  pushMatrix();
-  scale(0.5);
-  translate(0, 0);
-  strokeWeight(1);
-  if (null != dst) {
-    image(dst, 0, 0);
-		float cellSize = dst.width/7.0;
-	}
 
 
 
@@ -279,7 +269,7 @@ for (MatOfPoint2f marker : markers) {
    *  draw unwarped tag in video
    */
   pushMatrix();
-  scale(0.4);
+  scale(0.4*0.5);
   int placement = 0;
   for (PImage img: markersImages) {
     image(img, placement, 0);
@@ -288,7 +278,7 @@ for (MatOfPoint2f marker : markers) {
   popMatrix();
 
   pushMatrix();
-  scale(0.4);
+  scale(0.4*0.5);
   placement = 0;
   for (PImage img: markersImagesThresholded) {
     image(img, placement, img.height);
@@ -298,6 +288,19 @@ for (MatOfPoint2f marker : markers) {
 
 
 
+  /*
+   * draw tags in video
+   */
+  /*
+  pushMatrix();
+  scale(0.5);
+  translate(0, 0);
+  strokeWeight(1);
+  if (null != dst) {
+    image(dst, 0, 0);
+		float cellSize = dst.width/7.0;
+	}
+  */
 	/*
   for (int col = 0; col < 7; col++) {
     for (int row = 0; row < 7; row++) {
@@ -313,8 +316,10 @@ for (MatOfPoint2f marker : markers) {
     }
   }
 	*/
-
+  /*
   popMatrix();
+  */
+
 
 
 }
