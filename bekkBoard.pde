@@ -172,24 +172,6 @@ for (MatOfPoint2f marker : markers) {
   Imgproc.warpPerspective(gray, unWarpedMarker, transform, new Size(350, 350));
 
 
-
-  /*draw out markers */
-  /*
-  PImage dst1 = createImage(350, 350, RGB);
-  opencv.toPImage(unWarpedMarker, dst1);
-  pushMatrix();
-  scale(0.4);
-  image(dst1, 0, videoHeight*1.4);
-  popMatrix();
-  PImage dst2 = createImage(350, 350, RGB);
-  opencv.toPImage(marker, dst2);
-  pushMatrix();
-  scale(0.4);
-  image(dst2, videoWidth, videoHeight*1.4);
-  popMatrix();
-  */
-
-
   dst2 = createImage(350, 350, RGB);
   opencv.toPImage(unWarpedMarker, dst2);
   markersImages.add(dst2);
