@@ -1,4 +1,31 @@
+import gab.opencv.*;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+
+import org.opencv.core.Mat;
+import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
+import org.opencv.core.CvType;
+
+
+import org.opencv.core.Point;
+import org.opencv.core.Size;
+
 class MarkerCodes {
+
+  PImage src, dst, markerImg;
+
+  PImage dst1, dst2;
+
+
+  ArrayList<MatOfPoint> contours;
+  ArrayList<MatOfPoint2f> approximations;
+  ArrayList<MatOfPoint2f> markers;
+
+  ArrayList<MatOfPoint2f> nonresult;
+
+  boolean[][] markerCells;
 
   ArrayList<PImage> markersImages;
   ArrayList<PImage> markersImagesThresholded = new ArrayList<PImage>();
