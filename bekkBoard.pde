@@ -25,6 +25,7 @@ MarkerCodes markerCodes;
  */
 void setup () {
   //setThreshold();
+  bitshift();
 
   videoWidth = 1280;
   videoHeight = 720;
@@ -37,7 +38,6 @@ void setup () {
   size(windowWidth, windowHeight);
 
 	//video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
-  //
 	video = new Capture(this, videoWidth, videoHeight);
   opencv = new OpenCV(this, videoWidth, videoHeight);
 
@@ -144,4 +144,29 @@ void keyPressed() {
       println(markerCodes.thresholdval2);
       break;
   }
+}
+
+
+
+void bitshift() {
+  // 0000 0000 0000 1111
+
+  int bitmask = 0x000E;
+  bitmask += 1;
+  int val = 0xFFFFFFF;
+  println(val);
+  ///*
+  int bitmasks[] = new int[28];
+  for (int i = 0; i < bitmasks.length; i++) {
+    bitmasks[i] = 1 << i;
+    println(Integer.toBinaryString(bitmasks[i]));
+  }
+  println("-");
+  //*/
+  System.out.println(Integer.toBinaryString(val));
+  System.out.println(Integer.toBinaryString(bitmasks[27]));
+  val = 0xFFFFFFF ^ bitmasks [27] ^ bitmasks[26] ^ bitmasks[25];
+  System.out.println(Integer.toBinaryString(val));
+
+  //System.out.println(Integer.toBinaryString(val & bitmask));
 }
