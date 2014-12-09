@@ -155,6 +155,22 @@ class MarkerCodes {
 
 
 
+    /**
+     * check for rotations...
+     */
+    for (MatOfPoint2f marker : markers) {
+      Mat rotations[] = new Mat[4];
+      int distances[] = new int[4];
+    }
+
+
+
+
+    /**
+     * unwarp and check what code it is.
+     * method should take markers as argument (arraylist matofpoint2f)
+     * return arraylist of markercodes.
+     */
     for (MatOfPoint2f marker : markers) {
       /*
        * legge til en arrayList med markers med en viss kode in som vinkler - to
@@ -184,6 +200,7 @@ class MarkerCodes {
       // check bekkBoard.pde for bitshift stuff.
       //int markerCode = 1111111111111111111111111111111111111111111111111;
 
+      excludeOverlappingMarkers(markers);
       for (int row = 0; row < 7; row++) {
         for (int col = 0; col < 7; col++) {
           int cellX = int(col*cellSize);
@@ -226,7 +243,6 @@ class MarkerCodes {
     //drawContours2f(nonresult);
     stroke(0, 255, 0);
     drawContours2f(markers);  
-    excludeOverlappingMarkers(markers);
     popMatrix();
 
     /*
@@ -443,14 +459,39 @@ class MarkerCodes {
    * @param cntrs ArrayList of marker contours.
    */
   public void excludeOverlappingMarkers(ArrayList<MatOfPoint2f> cntrs) {
+    ArrayList<Integer> markerCentersX = new ArrayList<Integer>();
+    ArrayList<Integer> markerCentersY = new ArrayList<Integer>();
+    println("contour list length: " + cntrs.size());
     for (MatOfPoint2f contour : cntrs) {
       Point[] points = contour.toArray();
+      int sumX = 0;
+      int sumY = 0;
       for (int i = 0; i < points.length; i++) {
+        sumX += points[i].x;
+        sumY += points[i].y;
         println(contour + ": x: " + points[i].x + "  y: " + points[i].y);
       }
+      markerCentersX.add(sumX /= points.length);
+      markerCentersY.add(sumY /= points.length);
+
+      /*
+      if (cntrs.size() == 2) {
+        Point[] pointsA = cntrs.get(0).toArray();
+        Point[] pointsB = cntrs.get(1).toArray();
+        if (pointsA[0].x < pointsB[1].x && pointsA.X2 > pointsB.X1 &&
+                pointsA.Y1 < pointsB.Y2 && pointsA.Y2 > pointsB.Y1)
+      }
+      */
     }
-  }
-  public void excludeOverlappingMarkers() {
+    for (int i = 1; i < markerCentersX.size(); i++) {
+      if (
+      Math.abs(markerCentersX.get(i) - markerCentersX.get(i-1)) < 3 &&
+      Math.abs(markerCentersY.get(i) - markerCentersY.get(i-1)) < 3) {
+        println("overlapping");
+        cntrs.remove(i); 
+      }
+    }
+    println("contour list length: " + cntrs.size());
   }
 
 
