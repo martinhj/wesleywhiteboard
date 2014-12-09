@@ -474,24 +474,24 @@ class MarkerCodes {
       markerCentersX.add(sumX /= points.length);
       markerCentersY.add(sumY /= points.length);
 
-      /*
-      if (cntrs.size() == 2) {
-        Point[] pointsA = cntrs.get(0).toArray();
-        Point[] pointsB = cntrs.get(1).toArray();
-        if (pointsA[0].x < pointsB[1].x && pointsA.X2 > pointsB.X1 &&
-                pointsA.Y1 < pointsB.Y2 && pointsA.Y2 > pointsB.Y1)
-      }
-      */
     }
     for (int i = 1; i < markerCentersX.size(); i++) {
       if (
-      Math.abs(markerCentersX.get(i) - markerCentersX.get(i-1)) < 3 &&
-      Math.abs(markerCentersY.get(i) - markerCentersY.get(i-1)) < 3) {
+          Math.abs(markerCentersX.get(i) - markerCentersX.get(i-1)) < 3 &&
+          Math.abs(markerCentersY.get(i) - markerCentersY.get(i-1)) < 3
+      ) 
+      {
         println("overlapping");
         cntrs.remove(i); 
       }
     }
     println("contour list length: " + cntrs.size());
+  }
+
+
+  public ArrayList<Integer> markerCodes(ArrayList<MatOfPoint2f> cntrs) {
+    ArrayList<Integer> codes = new ArrayList<Integer>();
+
   }
 
 
