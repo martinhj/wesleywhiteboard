@@ -23,7 +23,13 @@ class MarkerCodes {
 
   ArrayList<MatOfPoint> contours;
   ArrayList<MatOfPoint2f> approximations;
-  ArrayList<MatOfPoint2f> markers;
+  ArrayList<MatOfPoint2f> markers = new ArrayList<MatOfPoint2f>();
+
+  ArrayList<Integer> markerCodes = new ArrayList<Integer>();
+  ArrayList<MatOfPoint2f> markerCodesMarkers = new ArrayList<MatOfPoint2f>();
+  int bitmasks[] = new int[28];
+
+  ArrayList<MatOfPoint2f> angelMarkers = new ArrayList<MatOfPoint2f>();
 
   ArrayList<MatOfPoint2f> nonresult;
 
@@ -52,6 +58,9 @@ class MarkerCodes {
     this.width = width;
     this.height = height;
     setThreshold();
+    for (int i = 0; i < bitmasks.length; i++) {
+      bitmasks[i] = 1 << i;
+    }
   }
 
   ArrayList<int []> getMarkerCodes () {
@@ -127,7 +136,7 @@ class MarkerCodes {
 
     approximations = createPolygonApproximations(contours);
 
-    markers = new ArrayList<MatOfPoint2f>();
+    markers.clear();
     markers = selectMarkers(approximations);
 
 
@@ -163,6 +172,7 @@ class MarkerCodes {
       int distances[] = new int[4];
     }
 
+    excludeOverlappingMarkers(markers);
 
 
 
@@ -171,6 +181,8 @@ class MarkerCodes {
      * method should take markers as argument (arraylist matofpoint2f)
      * return arraylist of markercodes.
      */
+    markerCodes.clear();
+    markerCodesMarkers.clear();
     for (MatOfPoint2f marker : markers) {
       /*
        * legge til en arrayList med markers med en viss kode in som vinkler - to
@@ -200,7 +212,6 @@ class MarkerCodes {
       // check bekkBoard.pde for bitshift stuff.
       //int markerCode = 1111111111111111111111111111111111111111111111111;
 
-      excludeOverlappingMarkers(markers);
       for (int row = 0; row < 7; row++) {
         for (int col = 0; col < 7; col++) {
           int cellX = int(col*cellSize);
@@ -211,6 +222,18 @@ class MarkerCodes {
           markerCells[row][col] = (Core.countNonZero(cell) > (cellSize*cellSize)/2);
         }
       }
+
+      int markerCode = 0xFFFFFFF ^ bitmasks[27] ^ bitmasks[26] ^ bitmasks[25];
+      for (int col = 1; col < 6; col++) {
+        for (int row = 1; row < 6; row++) {
+          if (!markerCells[row][col]) {
+            markerCode = markerCode ^ bitmasks[5 * (col - 1) + row - 1];
+          }
+        }
+      }
+      markerCodes.add(markerCode);
+      markerCodesMarkers.add(marker);
+      println(Integer.toBinaryString(markerCode));
 
       for (int col = 0; col < 7; col++) {
         for (int row = 0; row < 7; row++) {
@@ -225,6 +248,17 @@ class MarkerCodes {
       }
       println();
     }
+    for (int i : markerCodes) {
+      println("markercode: " + i);
+      println("markercode: " + Integer.toBinaryString(i));
+    }
+    angelMarkers.clear();
+    //for (int m : markerCodes) {
+    for (int i = 0; i < markerCodes.size(); i++) {
+      if (isAngel(markerCodes.get(i))) {
+        angelMarkers.add(markerCodesMarkers.get(i));
+      }
+    }
     // end for loop
 
     /*
@@ -233,16 +267,22 @@ class MarkerCodes {
     pushMatrix();
     scale(windowScale);
     scale(0.7);
-    image(src, 0, 0);
-    noFill();
     smooth();
+    image(dst3, 0, 0);
     strokeWeight(5);
     stroke(0, 0, 255);
     //drawContours2f(approximations);
+    fill(0, 0, 255, 75);
+    if (angelMarkers.size() == 2) {
+      drawAngelsRectangel(angelMarkers);
+      println("\n\n\n*****");
+    }
+    noFill();
     stroke(255, 0, 0);
     //drawContours2f(nonresult);
     stroke(0, 255, 0);
-    drawContours2f(markers);  
+    drawContours2f(angelMarkers);
+    //drawContours2f(markers);  
     popMatrix();
 
     /*
@@ -252,7 +292,7 @@ class MarkerCodes {
     scale(windowScale);
     translate(videoWidth*0.7, 0);
     scale(0.35);
-    image(dst3, 0, 0);
+    image(src, 0, 0);
     stroke(0, 255, 0);
     drawContours2f(markers);  
     popMatrix();
@@ -336,7 +376,7 @@ class MarkerCodes {
    *
    */
   ArrayList<MatOfPoint2f> selectMarkers(ArrayList<MatOfPoint2f> candidates) {
-    float minAllowedContourSide = 25;
+    float minAllowedContourSide = 10;
     minAllowedContourSide = minAllowedContourSide * minAllowedContourSide;
 
     ArrayList<MatOfPoint2f> result = new ArrayList<MatOfPoint2f>();
@@ -461,7 +501,7 @@ class MarkerCodes {
   public void excludeOverlappingMarkers(ArrayList<MatOfPoint2f> cntrs) {
     ArrayList<Integer> markerCentersX = new ArrayList<Integer>();
     ArrayList<Integer> markerCentersY = new ArrayList<Integer>();
-    println("contour list length: " + cntrs.size());
+    ArrayList<MatOfPoint2f> markForDeletion = new ArrayList<MatOfPoint2f>();
     for (MatOfPoint2f contour : cntrs) {
       Point[] points = contour.toArray();
       int sumX = 0;
@@ -469,7 +509,6 @@ class MarkerCodes {
       for (int i = 0; i < points.length; i++) {
         sumX += points[i].x;
         sumY += points[i].y;
-        println(contour + ": x: " + points[i].x + "  y: " + points[i].y);
       }
       markerCentersX.add(sumX /= points.length);
       markerCentersY.add(sumY /= points.length);
@@ -482,8 +521,12 @@ class MarkerCodes {
       ) 
       {
         println("overlapping");
-        cntrs.remove(i); 
+        markForDeletion.add(cntrs.get(i));
       }
+    }
+
+    for (MatOfPoint2f m : markForDeletion) {
+        cntrs.remove(m); 
     }
     println("contour list length: " + cntrs.size());
   }
@@ -491,7 +534,38 @@ class MarkerCodes {
 
   public ArrayList<Integer> markerCodes(ArrayList<MatOfPoint2f> cntrs) {
     ArrayList<Integer> codes = new ArrayList<Integer>();
+    return null;
 
+  }
+
+
+  void drawAngelsRectangel(ArrayList<MatOfPoint2f> am) {
+    int x, y, height, width;
+    x = (int)am.get(0).toArray()[0].x;
+    y = (int)am.get(0).toArray()[0].y;
+    println(x);
+    println(y);
+    height = (int) am.get(1).toArray()[0].x - x;
+    width = (int) am.get(1).toArray()[0].y - y;
+    rect(x, y, height, width);
+  }
+
+
+  boolean isAngel (int markerCode) {
+    int [] markers = {
+      30505948,
+      17260279,
+      31389121,
+      24894928,
+      1537981,
+      30373981,
+      24395239,
+      24894928
+    };
+    for (int m : markers) {
+      if (markerCode == m) return true;
+    }
+    return false;
   }
 
 
