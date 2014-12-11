@@ -9,11 +9,17 @@ Capture video;
 OpenCV opencv;
 
 
+SecondApplet s = new SecondApplet();
+PImage secondWindowImage1 = createImage(1280, 720, RGB);
+PImage secondWindowImage2 = createImage(1280, 720, RGB);
 
 
 
 float windowScale;
 int videoWidth, videoHeight;
+
+
+int lastTimeOutput = 0;
 
 
 MarkerCodes markerCodes;
@@ -25,24 +31,27 @@ MarkerCodes markerCodes;
  */
 void setup () {
   //setThreshold();
-  bitshift();
+  //bitshift();
+  frame.setTitle("Wesley the white board");
 
-  videoWidth = 1280;
-  videoHeight = 720;
+
+  videoWidth = 1280 / 2;
+  videoHeight = 720 / 2;
   
   windowScale = (float) 960 / videoWidth ; // to scale down the video and window
   println(windowScale);
+  PFrame secondFrame = new PFrame(s, (int)round(videoWidth * windowScale), 900);
+  secondFrame.setTitle("Wesley output");
   int windowWidth = (int)round((videoWidth*0.7 + videoWidth*0.35) * windowScale);
   int windowHeight = (int) round((videoHeight*0.7) * windowScale);
 
   size(windowWidth, windowHeight);
 
-	//video = new Capture(this, width, height, "Microsoft® LifeCam Studio(TM)", 30);
-	video = new Capture(this, videoWidth, videoHeight);
+	video = new Capture(this, videoWidth, videoHeight, "Microsoft® LifeCam Studio(TM)", 30);
+	//video = new Capture(this, videoWidth, videoHeight);
   opencv = new OpenCV(this, videoWidth, videoHeight);
 
 
-  println(this);
 
   markerCodes = new MarkerCodes(this, opencv, videoWidth, videoHeight);
 	  
@@ -59,7 +68,6 @@ void setup () {
 	}
   */
 
-
   video.start();
 }
 
@@ -70,7 +78,23 @@ void setup () {
  */
 void draw () {
   markerCodes.readNextFrame();
-  markerCodes.drawMarkerImagesUnwarped(0, 0);
+  //markerCodes.drawMarkerImagesUnwarped(0, 0);
+  
+  if (
+      !markerCodes.slackMarkers.isEmpty()
+      && markerCodes.angelMarkers.size() == 2
+      ) {
+    if (lastTimeOutput == 0) {
+      lastTimeOutput = millis();
+    }
+    println("something in there \n\n\n");
+    if (lastTimeOutput > 2000) {
+      markerCodes.saveImage();
+    }
+  } else {
+    lastTimeOutput = 0;
+  }
+  
 }
 
 
