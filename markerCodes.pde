@@ -19,6 +19,9 @@ class MarkerCodes {
   PImage src, dst, markerImg;
 
   PImage dst1, dst2;
+  PImage dst3 = createImage(videoWidth, videoHeight, RGB);
+  PImage dst4 = createImage(videoWidth, videoHeight, RGB);
+  PImage imageForSaving = createImage(videoWidth, videoHeight, RGB);
 
 
   ArrayList<MatOfPoint> contours;
@@ -30,6 +33,7 @@ class MarkerCodes {
   int bitmasks[] = new int[28];
 
   ArrayList<MatOfPoint2f> angelMarkers = new ArrayList<MatOfPoint2f>();
+  ArrayList<MatOfPoint2f> slackMarkers = new ArrayList<MatOfPoint2f>();
 
   ArrayList<MatOfPoint2f> nonresult;
 
@@ -124,14 +128,12 @@ class MarkerCodes {
         thresholdval1, thresholdval2);
 
 
-    PImage dst3 = createImage(videoWidth, videoHeight, RGB);
     opencv.toPImage(thresholdMat, dst3); // image upper right corner
 
     contours = new ArrayList<MatOfPoint>();
     Imgproc.findContours(thresholdMat, contours, new Mat(), Imgproc.RETR_LIST,
         Imgproc.CHAIN_APPROX_NONE);
 
-    PImage dst4 = createImage(videoWidth, videoHeight, RGB);
     opencv.toPImage(thresholdMat, dst4); // image lower right corner
 
     approximations = createPolygonApproximations(contours);
@@ -209,8 +211,6 @@ class MarkerCodes {
 
       markerCells = new boolean[7][7];
 
-      // check bekkBoard.pde for bitshift stuff.
-      //int markerCode = 1111111111111111111111111111111111111111111111111;
 
       for (int row = 0; row < 7; row++) {
         for (int col = 0; col < 7; col++) {
@@ -253,13 +253,18 @@ class MarkerCodes {
       println("markercode: " + Integer.toBinaryString(i));
     }
     angelMarkers.clear();
-    //for (int m : markerCodes) {
     for (int i = 0; i < markerCodes.size(); i++) {
       if (isAngel(markerCodes.get(i))) {
         angelMarkers.add(markerCodesMarkers.get(i));
       }
     }
     // end for loop
+    slackMarkers.clear();
+    for (int i = 0; i < markerCodes.size(); i++) {
+      if (isSlackOutput(markerCodes.get(i))) {
+        slackMarkers.add(markerCodesMarkers.get(i));
+      }
+    }
 
     /*
      * draw source video
@@ -268,7 +273,8 @@ class MarkerCodes {
     scale(windowScale);
     scale(0.7);
     smooth();
-    image(dst3, 0, 0);
+    image(src, 0, 0);
+    //s.newImage(dst3);
     strokeWeight(5);
     stroke(0, 0, 255);
     //drawContours2f(approximations);
@@ -279,7 +285,7 @@ class MarkerCodes {
     }
     noFill();
     stroke(255, 0, 0);
-    //drawContours2f(nonresult);
+    drawContours2f(slackMarkers);
     stroke(0, 255, 0);
     drawContours2f(angelMarkers);
     //drawContours2f(markers);  
@@ -292,7 +298,7 @@ class MarkerCodes {
     scale(windowScale);
     translate(videoWidth*0.7, 0);
     scale(0.35);
-    image(src, 0, 0);
+    image(dst3, 0, 0);
     stroke(0, 255, 0);
     drawContours2f(markers);  
     popMatrix();
@@ -567,6 +573,32 @@ class MarkerCodes {
     }
     return false;
   }
+  
+
+  
+  boolean isSlackOutput (int markerCode) {
+    int [] markers = {
+      32501201,
+      15723985,
+      23571958,
+      14642125,
+      18313198,
+      16772561,
+      16772560,
+      33418704,
+      16772592,
+      32378880,
+      15723969,
+      16772544,
+      32378880,
+      32501201,
+      33418705
+    };
+    for (int m : markers) {
+      if (markerCode == m) return true;
+    }
+    return false;
+  }
 
 
   public void setThreshold() {
@@ -575,5 +607,42 @@ class MarkerCodes {
     thresholdval2 = 7;
     blurval = 5;
     epsMultiplier = 0.01;
+  }
+
+
+  void saveImage() {
+    saveImage(angelMarkers);
+  }
+  void saveImage(ArrayList<MatOfPoint2f> am) {
+    int x, y, width, height;
+    x = 10;
+    y = 11;
+    width = 300;
+    height = 300;
+    if (am.get(0).toArray()[0].x < am.get(1).toArray()[0].x) {
+      x = (int)am.get(0).toArray()[0].x;
+      width = (int) am.get(1).toArray()[0].x - x;
+    } else {
+      x = (int)am.get(1).toArray()[0].x;
+      width = (int) am.get(0).toArray()[0].x - x;
+    }
+    if (am.get(0).toArray()[0].y < am.get(1).toArray()[0].y) {
+      y = (int)am.get(0).toArray()[0].y;
+      height = (int) am.get(1).toArray()[0].y - y;
+    } else {
+      y = (int)am.get(1).toArray()[0].y;
+      height = (int) am.get(0).toArray()[0].y - y;
+    }
+    println("x: " + x + "| y: " + y + "| w: " + width + "| h: " + height);
+    println("x: " + x + "| y: " + y + "| w: " + abs(width) + "| h: " + abs(height));
+    scale(windowScale);
+    imageForSaving.copy(src, x, y, width, height, 0, 0, width, height);
+    //image(imageForSaving, 0, 0);
+    s.newImage(imageForSaving);
+    scale(0.7);
+    rect(x, y, width, height);
+    rect(x, y, abs(width), abs(height));
+
+
   }
 }
