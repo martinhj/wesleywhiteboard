@@ -1,5 +1,7 @@
 public class SecondApplet extends PApplet {
   int ghostX, ghostY;
+  int lastTimeChangedImage = 0;
+  int lastTimeChangedContour = 0;
   public void setup() {
     background(0);
     noStroke();
@@ -19,7 +21,15 @@ public class SecondApplet extends PApplet {
     this.ghostY = ghostY;
   }
   public void newImage(PImage i) {
-    secondWindowImage2 = secondWindowImage1;
-    secondWindowImage1 = i;
+    //if (millis() - lastTimeChangedImage > 5000) {
+      secondWindowImage1 = i;
+      lastTimeChangedImage = millis();
+    //}
+  }
+  public void newContour(PImage i) {
+    //if (millis() - lastTimeChangedContour > 5000) {
+      secondWindowImage2 = i;
+      lastTimeChangedContour = millis();
+    //}
   }
 }

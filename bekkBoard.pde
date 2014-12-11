@@ -35,8 +35,8 @@ void setup () {
   frame.setTitle("Wesley the white board");
 
 
-  videoWidth = 1280 / 2;
-  videoHeight = 720 / 2;
+  videoWidth = 1920/2;
+  videoHeight = 1080/2;
   
   windowScale = (float) 960 / videoWidth ; // to scale down the video and window
   println(windowScale);

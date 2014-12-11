@@ -294,6 +294,7 @@ class MarkerCodes {
     /*
      * draw binarization video
      */
+    /*
     pushMatrix();
     scale(windowScale);
     translate(videoWidth*0.7, 0);
@@ -302,10 +303,12 @@ class MarkerCodes {
     stroke(0, 255, 0);
     drawContours2f(markers);  
     popMatrix();
+    */
 
     /*
      * draw contours video
      */
+    /*
     pushMatrix();
     scale(windowScale);
     translate(videoWidth*0.7, 0);
@@ -315,6 +318,7 @@ class MarkerCodes {
     stroke(0, 255, 0);
     drawContours2f(markers);  
     popMatrix();
+    */
 
 
 
@@ -566,7 +570,24 @@ class MarkerCodes {
       1537981,
       30373981,
       24395239,
-      24894928
+      24894928,
+      30373981,
+      24894928,
+      7847191,
+      31389120,
+      24894960,
+      24894928,
+      31389120,
+      31389632,
+      24894912,
+      515831,
+      17293047,
+      30505948,
+      30373980,
+      489405,
+      1013693
+
+
     };
     for (int m : markers) {
       if (markerCode == m) return true;
@@ -603,8 +624,8 @@ class MarkerCodes {
 
   public void setThreshold() {
     // 25, 4
-    thresholdval1 = 21;
-    thresholdval2 = 7;
+    thresholdval1 = 25;
+    thresholdval2 = 4;
     blurval = 5;
     epsMultiplier = 0.01;
   }
@@ -636,9 +657,15 @@ class MarkerCodes {
     println("x: " + x + "| y: " + y + "| w: " + width + "| h: " + height);
     println("x: " + x + "| y: " + y + "| w: " + abs(width) + "| h: " + abs(height));
     scale(windowScale);
+    imageForSaving = createImage(videoWidth, videoHeight, RGB);
     imageForSaving.copy(src, x, y, width, height, 0, 0, width, height);
+
     //image(imageForSaving, 0, 0);
     s.newImage(imageForSaving);
+
+    imageForSaving = createImage(videoWidth, videoHeight, RGB);
+    imageForSaving.copy(dst3, x, y, width, height, 0, 0, width, height);
+    s.newContour(imageForSaving);
     scale(0.7);
     rect(x, y, width, height);
     rect(x, y, abs(width), abs(height));
