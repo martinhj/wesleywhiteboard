@@ -21,7 +21,6 @@ class MarkerCodes {
   PImage dst1, dst2;
   PImage dst3 = createImage(videoWidth, videoHeight, RGB);
   PImage dst4 = createImage(videoWidth, videoHeight, RGB);
-  PImage imageForSaving = createImage(videoWidth, videoHeight, RGB);
 
 
   ArrayList<MatOfPoint> contours;
@@ -30,10 +29,9 @@ class MarkerCodes {
 
   ArrayList<Integer> markerCodes = new ArrayList<Integer>();
   ArrayList<MatOfPoint2f> markerCodesMarkers = new ArrayList<MatOfPoint2f>();
+  ArrayList<MarkerCode> markerCodes_ = new ArrayList<MarkerCode>();
   int bitmasks[] = new int[28];
 
-  ArrayList<MatOfPoint2f> angelMarkers = new ArrayList<MatOfPoint2f>();
-  ArrayList<MatOfPoint2f> slackMarkers = new ArrayList<MatOfPoint2f>();
 
   ArrayList<MatOfPoint2f> nonresult;
 
@@ -67,10 +65,12 @@ class MarkerCodes {
     }
   }
 
+  /*
   ArrayList<int []> getMarkerCodes () {
     ArrayList<int []> markerCodes = new ArrayList<int []>();
     return markerCodes;
   }
+  */
 
 
   ArrayList<PImage> markerImagesUnwarped() {
@@ -169,10 +169,12 @@ class MarkerCodes {
     /**
      * check for rotations...
      */
+    /*
     for (MatOfPoint2f marker : markers) {
       Mat rotations[] = new Mat[4];
       int distances[] = new int[4];
     }
+    */
 
     excludeOverlappingMarkers(markers);
 
@@ -185,6 +187,7 @@ class MarkerCodes {
      */
     markerCodes.clear();
     markerCodesMarkers.clear();
+    markerCodes_.clear();
     for (MatOfPoint2f marker : markers) {
       /*
        * legge til en arrayList med markers med en viss kode in som vinkler - to
@@ -223,6 +226,7 @@ class MarkerCodes {
         }
       }
 
+      // calculates the markercode
       int markerCode = 0xFFFFFFF ^ bitmasks[27] ^ bitmasks[26] ^ bitmasks[25];
       for (int col = 1; col < 6; col++) {
         for (int row = 1; row < 6; row++) {
@@ -231,6 +235,10 @@ class MarkerCodes {
           }
         }
       }
+      /* rewrite to add to a MarkerCode object that goes into the MarkerCodes arraylist
+       */
+      markerCodes_.add(new MarkerCode(marker, markerCode));
+      /*
       markerCodes.add(markerCode);
       markerCodesMarkers.add(marker);
       println(Integer.toBinaryString(markerCode));
@@ -247,78 +255,20 @@ class MarkerCodes {
         println();
       }
       println();
+      */
     }
+    /*
     for (int i : markerCodes) {
       println("markercode: " + i);
       println("markercode: " + Integer.toBinaryString(i));
     }
-    angelMarkers.clear();
-    for (int i = 0; i < markerCodes.size(); i++) {
-      if (isAngel(markerCodes.get(i))) {
-        angelMarkers.add(markerCodesMarkers.get(i));
-      }
+    println("new iterator: ");
+    for (MarkerCode mc : markerCodes_) {
+      println("markercode: " + mc.getCode());
+      println("markercode: " + Integer.toBinaryString(mc.getCode()));
     }
-    // end for loop
-    slackMarkers.clear();
-    for (int i = 0; i < markerCodes.size(); i++) {
-      if (isSlackOutput(markerCodes.get(i))) {
-        slackMarkers.add(markerCodesMarkers.get(i));
-      }
-    }
-
-    /*
-     * draw source video
-     */
-    pushMatrix();
-    scale(windowScale);
-    scale(0.7);
-    smooth();
-    image(src, 0, 0);
-    //s.newImage(dst3);
-    strokeWeight(5);
-    stroke(0, 0, 255);
-    //drawContours2f(approximations);
-    fill(0, 0, 255, 75);
-    if (angelMarkers.size() == 2) {
-      drawAngelsRectangel(angelMarkers);
-      println("\n\n\n*****");
-    }
-    noFill();
-    stroke(255, 0, 0);
-    drawContours2f(slackMarkers);
-    stroke(0, 255, 0);
-    drawContours2f(angelMarkers);
-    //drawContours2f(markers);  
-    popMatrix();
-
-    /*
-     * draw binarization video
-     */
-    /*
-    pushMatrix();
-    scale(windowScale);
-    translate(videoWidth*0.7, 0);
-    scale(0.35);
-    image(dst3, 0, 0);
-    stroke(0, 255, 0);
-    drawContours2f(markers);  
-    popMatrix();
     */
 
-    /*
-     * draw contours video
-     */
-    /*
-    pushMatrix();
-    scale(windowScale);
-    translate(videoWidth*0.7, 0);
-    scale(0.35);
-    translate(0, videoHeight);
-    image(dst4, 0, 0);
-    stroke(0, 255, 0);
-    drawContours2f(markers);  
-    popMatrix();
-    */
 
 
 
@@ -561,65 +511,9 @@ class MarkerCodes {
   }
 
 
-  boolean isAngel (int markerCode) {
-    int [] markers = {
-      30505948,
-      17260279,
-      31389121,
-      24894928,
-      1537981,
-      30373981,
-      24395239,
-      24894928,
-      30373981,
-      24894928,
-      7847191,
-      31389120,
-      24894960,
-      24894928,
-      31389120,
-      31389632,
-      24894912,
-      515831,
-      17293047,
-      30505948,
-      30373980,
-      489405,
-      1013693
-
-
-    };
-    for (int m : markers) {
-      if (markerCode == m) return true;
-    }
-    return false;
-  }
   
 
   
-  boolean isSlackOutput (int markerCode) {
-    int [] markers = {
-      32501201,
-      15723985,
-      23571958,
-      14642125,
-      18313198,
-      16772561,
-      16772560,
-      33418704,
-      16772592,
-      32378880,
-      15723969,
-      16772544,
-      32378880,
-      32501201,
-      33418705
-    };
-    for (int m : markers) {
-      if (markerCode == m) return true;
-    }
-    return false;
-  }
 
 
   public void setThreshold() {
@@ -631,45 +525,34 @@ class MarkerCodes {
   }
 
 
-  void saveImage() {
-    saveImage(angelMarkers);
+
+
+
+
+
+  /*
+   * getMarkerCodes returnerer en arraylist med markercodes objekter -
+   * markercodes objekter består av en int med selve markerkoden og
+   * et MatOfPoint2f objekt - selve objektet med posisjon og bilde.
+   */
+  ArrayList<MarkerCode> getMarkerCodes() {
+    return markerCodes_;
   }
-  void saveImage(ArrayList<MatOfPoint2f> am) {
-    int x, y, width, height;
-    x = 10;
-    y = 11;
-    width = 300;
-    height = 300;
-    if (am.get(0).toArray()[0].x < am.get(1).toArray()[0].x) {
-      x = (int)am.get(0).toArray()[0].x;
-      width = (int) am.get(1).toArray()[0].x - x;
-    } else {
-      x = (int)am.get(1).toArray()[0].x;
-      width = (int) am.get(0).toArray()[0].x - x;
-    }
-    if (am.get(0).toArray()[0].y < am.get(1).toArray()[0].y) {
-      y = (int)am.get(0).toArray()[0].y;
-      height = (int) am.get(1).toArray()[0].y - y;
-    } else {
-      y = (int)am.get(1).toArray()[0].y;
-      height = (int) am.get(0).toArray()[0].y - y;
-    }
-    println("x: " + x + "| y: " + y + "| w: " + width + "| h: " + height);
-    println("x: " + x + "| y: " + y + "| w: " + abs(width) + "| h: " + abs(height));
-    scale(windowScale);
-    imageForSaving = createImage(videoWidth, videoHeight, RGB);
-    imageForSaving.copy(src, x, y, width, height, 0, 0, width, height);
-
-    //image(imageForSaving, 0, 0);
-    s.newImage(imageForSaving);
-
-    imageForSaving = createImage(videoWidth, videoHeight, RGB);
-    imageForSaving.copy(dst3, x, y, width, height, 0, 0, width, height);
-    s.newContour(imageForSaving);
-    scale(0.7);
-    rect(x, y, width, height);
-    rect(x, y, abs(width), abs(height));
 
 
+  ArrayList<MatOfPoint2f> getMarkers() {
+    return markers;
   }
+
+  /*
+     bruk getMarkerCodes for så å finne angelmarkers og outmarkers:
+     // sammenlign markercodes med koder som skal gjøre jobben. Tegne ut
+     // rektangler i bekkBoard klassen.
+     getAngelMarkers() // lage en metode som finner angelmarkers
+     getOutputMarkers() // lage en metode som finner outputmarkers.
+     outputmarkers kan være interface for å muliggjøre implementasjon av
+     output.
+   */
+
+
 }
