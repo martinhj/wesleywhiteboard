@@ -18,7 +18,7 @@ float windowScale;
 int videoWidth, videoHeight;
 
 
-int lastTimeOutput = 0;
+int lastOutputTime = 0;
 
 
 MarkerCodes markerCodes;
@@ -38,8 +38,8 @@ void setup () {
   frame.setTitle("Wesley the white board");
 
 
-  videoWidth = 1920;
-  videoHeight = 1080;
+  videoWidth = 1920/2;
+  videoHeight = 1080/2;
   
   windowScale = (float) 960 / videoWidth ; // to scale down the video and window
   println(windowScale);
@@ -81,13 +81,13 @@ void setup () {
  */
 void draw () {
   markerCodes.readNextFrame();
-  //markerCodes.drawMarkerImagesUnwarped(0, 0);
+  //markerCodes.drawMarkerImagesUnwarped(-1, 0);
   markerCodesResult = markerCodes.getMarkerCodes();
   checkMarkers();
     /*
      * draw source video
      */
-    frame.setTitle("" + frameRate);
+    //frame.setTitle("" + frameRate);
     pushMatrix();
     scale(windowScale);
     scale(0.7);
@@ -100,7 +100,7 @@ void draw () {
     fill(0, 0, 255, 75);
     if (angelMarkers.size() == 2) {
       markerCodes.drawAngelsRectangel(angelMarkers);
-      println("\n\n\n*****");
+      //println("\n\n\n*****");
     }
     noFill();
     stroke(255, 0, 0);
@@ -134,23 +134,26 @@ void draw () {
     stroke(0, 255, 0);
     markerCodes.drawContours2f(markerCodes.getMarkers());
     popMatrix();
-  
-  if (
-      !slackMarkers.isEmpty()
-      && angelMarkers.size() == 2
-      ) {
-    if (lastTimeOutput == 0) {
-      lastTimeOutput = millis();
-    }
-    println("something in there \n\n\n");
-    if (lastTimeOutput > 2000) {
-      saveImage();
-    }
-  } else {
-    lastTimeOutput = 0;
-  }
+
+		shutter();
   
 }
+
+
+
+
+
+void shutter() {
+  
+  if ( !slackMarkers.isEmpty()
+      && angelMarkers.size() == 2) {
+    if (millis() - lastOutputTime > 800) {
+      saveImage();
+			lastOutputTime = millis();
+    }
+  } 
+}
+
 
 
 
@@ -318,10 +321,6 @@ void checkMarkers() {
   }
   void saveImage(ArrayList<MatOfPoint2f> am) {
     int x, y, width, height;
-    x = 10;
-    y = 11;
-    width = 300;
-    height = 300;
     if (am.get(0).toArray()[0].x < am.get(1).toArray()[0].x) {
       x = (int)am.get(0).toArray()[0].x;
       width = (int) am.get(1).toArray()[0].x - x;
@@ -336,49 +335,23 @@ void checkMarkers() {
       y = (int)am.get(1).toArray()[0].y;
       height = (int) am.get(0).toArray()[0].y - y;
     }
+		/*
     println("x: " + x + "| y: " + y + "| w: " + width + "| h: " + height);
     println("x: " + x + "| y: " + y + "| w: " + abs(width) + "| h: " + abs(height));
+		*/
     scale(windowScale);
-    imageForSaving = createImage(videoWidth, videoHeight, RGB);
+		imageForSaving = createImage(width, height, RGB);
     imageForSaving.copy(markerCodes.src, x, y, width, height, 0, 0, width, height);
 
     //image(imageForSaving, 0, 0);
     imageForSaving.save("output" + frameCount + ".jpg");
     s.newImage(imageForSaving);
 
-    imageForSaving = createImage(videoWidth, videoHeight, RGB);
+		imageForSaving = createImage(width, height, RGB);
     imageForSaving.copy(markerCodes.dst3, x, y, width, height, 0, 0, width, height);
     s.newContour(imageForSaving);
     scale(0.7);
     rect(x, y, width, height);
-    rect(x, y, abs(width), abs(height));
 
 
   }
-
-
-
-
-
-void bitshift() {
-  // 0000 0000 0000 1111
-
-  int bitmask = 0x000E;
-  bitmask += 1;
-  int val = 0xFFFFFFF;
-  println(val);
-  ///*
-  int bitmasks[] = new int[28];
-  for (int i = 0; i < bitmasks.length; i++) {
-    bitmasks[i] = 1 << i;
-    println(Integer.toBinaryString(bitmasks[i]));
-  }
-  println("-");
-  //*/
-  System.out.println(Integer.toBinaryString(val));
-  System.out.println(Integer.toBinaryString(bitmasks[27]));
-  val = 0xFFFFFFF ^ bitmasks [27] ^ bitmasks[26] ^ bitmasks[25];
-  System.out.println(Integer.toBinaryString(val));
-
-  //System.out.println(Integer.toBinaryString(val & bitmask));
-}
