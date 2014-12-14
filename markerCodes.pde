@@ -27,8 +27,6 @@ class MarkerCodes {
   ArrayList<MatOfPoint2f> approximations;
   ArrayList<MatOfPoint2f> markers = new ArrayList<MatOfPoint2f>();
 
-  ArrayList<Integer> markerCodes = new ArrayList<Integer>();
-  ArrayList<MatOfPoint2f> markerCodesMarkers = new ArrayList<MatOfPoint2f>();
   ArrayList<MarkerCode> markerCodes_ = new ArrayList<MarkerCode>();
   int bitmasks[] = new int[28];
 
@@ -160,7 +158,7 @@ class MarkerCodes {
     Mat transform;
 
 
-    println("number of markers found: " + markers.size());
+    //println("number of markers found: " + markers.size());
     markersImages.clear();
     markersImagesThresholded.clear();
 
@@ -185,8 +183,6 @@ class MarkerCodes {
      * method should take markers as argument (arraylist matofpoint2f)
      * return arraylist of markercodes.
      */
-    markerCodes.clear();
-    markerCodesMarkers.clear();
     markerCodes_.clear();
     for (MatOfPoint2f marker : markers) {
       /*
@@ -238,90 +234,7 @@ class MarkerCodes {
       /* rewrite to add to a MarkerCode object that goes into the MarkerCodes arraylist
        */
       markerCodes_.add(new MarkerCode(marker, markerCode));
-      /*
-      markerCodes.add(markerCode);
-      markerCodesMarkers.add(marker);
-      println(Integer.toBinaryString(markerCode));
-
-      for (int col = 0; col < 7; col++) {
-        for (int row = 0; row < 7; row++) {
-          if (markerCells[row][col]) {
-            print(1);
-          } 
-          else {
-            print(0);
-          }
-        }
-        println();
-      }
-      println();
-      */
     }
-    /*
-    for (int i : markerCodes) {
-      println("markercode: " + i);
-      println("markercode: " + Integer.toBinaryString(i));
-    }
-    println("new iterator: ");
-    for (MarkerCode mc : markerCodes_) {
-      println("markercode: " + mc.getCode());
-      println("markercode: " + Integer.toBinaryString(mc.getCode()));
-    }
-    */
-
-
-
-
-
-
-    /*
-     *  draw unwarped tag in video
-     */
-    /*
-       pushMatrix();
-       scale(0.4*0.5);
-       int placement = 0;
-       for (PImage img: markersImages) {
-       image(img, placement, 0);
-       placement += img.width;
-       }
-       popMatrix();
-     */
-
-
-
-
-    /*
-     * draw tags in video
-     */
-    /*
-       pushMatrix();
-       scale(0.5);
-       translate(0, 0);
-       strokeWeight(1);
-       if (null != dst) {
-       image(dst, 0, 0);
-       float cellSize = dst.width/7.0;
-       }
-     */
-    /*
-       for (int col = 0; col < 7; col++) {
-       for (int row = 0; row < 7; row++) {
-       if(markerCells[row][col]){
-       fill(255);
-       } else {
-       fill(0);
-       }
-       stroke(0,255,0);
-       rect(col*cellSize, row*cellSize, cellSize, cellSize);
-    //line(i*cellSize, 0, i*cellSize, dst.width);
-    //line(0, i*cellSize, dst.width, i*cellSize);
-    }
-    }
-     */
-    /*
-       popMatrix();
-     */
 
 
 
@@ -390,7 +303,7 @@ class MarkerCodes {
 
     if (!cntrs.isEmpty()) {
       double epsilon = 0;
-      println(":" + epsilon);
+      //println(":" + epsilon);
 
       int counter = 0;
       for (MatOfPoint contour : cntrs) {
@@ -480,7 +393,7 @@ class MarkerCodes {
           Math.abs(markerCentersY.get(i) - markerCentersY.get(i-1)) < 3
       ) 
       {
-        println("overlapping");
+        //println("overlapping");
         markForDeletion.add(cntrs.get(i));
       }
     }
@@ -488,23 +401,18 @@ class MarkerCodes {
     for (MatOfPoint2f m : markForDeletion) {
         cntrs.remove(m); 
     }
-    println("contour list length: " + cntrs.size());
+    //println("contour list length: " + cntrs.size());
   }
 
 
-  public ArrayList<Integer> markerCodes(ArrayList<MatOfPoint2f> cntrs) {
-    ArrayList<Integer> codes = new ArrayList<Integer>();
-    return null;
-
-  }
 
 
   void drawAngelsRectangel(ArrayList<MatOfPoint2f> am) {
     int x, y, height, width;
     x = (int)am.get(0).toArray()[0].x;
     y = (int)am.get(0).toArray()[0].y;
-    println(x);
-    println(y);
+    //println(x);
+    //println(y);
     height = (int) am.get(1).toArray()[0].x - x;
     width = (int) am.get(1).toArray()[0].y - y;
     rect(x, y, height, width);
@@ -543,16 +451,5 @@ class MarkerCodes {
   ArrayList<MatOfPoint2f> getMarkers() {
     return markers;
   }
-
-  /*
-     bruk getMarkerCodes for så å finne angelmarkers og outmarkers:
-     // sammenlign markercodes med koder som skal gjøre jobben. Tegne ut
-     // rektangler i bekkBoard klassen.
-     getAngelMarkers() // lage en metode som finner angelmarkers
-     getOutputMarkers() // lage en metode som finner outputmarkers.
-     outputmarkers kan være interface for å muliggjøre implementasjon av
-     output.
-   */
-
 
 }
