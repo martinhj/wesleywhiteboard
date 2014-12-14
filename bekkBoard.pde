@@ -135,6 +135,7 @@ void draw () {
     markerCodes.drawContours2f(markerCodes.getMarkers());
     popMatrix();
 
+		/* saves the image */
 		shutter();
   
 }
@@ -256,8 +257,6 @@ boolean isAngelMarker(int markerCode) {
     30373980,
     489405,
     1013693
-
-
   };
   for (int m : markers) {
     if (markerCode == m) return true;
@@ -294,64 +293,61 @@ boolean isSlackOutputMarker (int markerCode) {
 }
 
 void checkMarkers() {
+	MarkerCode mc;
   angelMarkers.clear();
-  slackMarkers.clear();
-    angelMarkers.clear();
-    MarkerCode mc;
-    for (int i = 0; i < markerCodesResult.size(); i++) {
-      mc = markerCodesResult.get(i);
-      if (isAngelMarker(mc.getCode())) {
-        angelMarkers.add(mc.getMat());
-      }
-    }
-    // end for loop
-    slackMarkers.clear();
-    for (int i = 0; i < markerCodesResult.size(); i++) {
-      mc =markerCodesResult.get(i);
-      if (isSlackOutputMarker(mc.getCode())) {
-        slackMarkers.add(mc.getMat());
-      }
-    }
+	for (int i = 0; i < markerCodesResult.size(); i++) {
+		mc = markerCodesResult.get(i);
+		if (isAngelMarker(mc.getCode())) {
+			angelMarkers.add(mc.getMat());
+		}
+	}
+	slackMarkers.clear();
+	for (int i = 0; i < markerCodesResult.size(); i++) {
+		mc = markerCodesResult.get(i);
+		if (isSlackOutputMarker(mc.getCode())) {
+			slackMarkers.add(mc.getMat());
+		}
+	}
 }
 
 
 
-  void saveImage() {
-    saveImage(angelMarkers);
-  }
-  void saveImage(ArrayList<MatOfPoint2f> am) {
-    int x, y, width, height;
-    if (am.get(0).toArray()[0].x < am.get(1).toArray()[0].x) {
-      x = (int)am.get(0).toArray()[0].x;
-      width = (int) am.get(1).toArray()[0].x - x;
-    } else {
-      x = (int)am.get(1).toArray()[0].x;
-      width = (int) am.get(0).toArray()[0].x - x;
-    }
-    if (am.get(0).toArray()[0].y < am.get(1).toArray()[0].y) {
-      y = (int)am.get(0).toArray()[0].y;
-      height = (int) am.get(1).toArray()[0].y - y;
-    } else {
-      y = (int)am.get(1).toArray()[0].y;
-      height = (int) am.get(0).toArray()[0].y - y;
-    }
-		/*
-    println("x: " + x + "| y: " + y + "| w: " + width + "| h: " + height);
-    println("x: " + x + "| y: " + y + "| w: " + abs(width) + "| h: " + abs(height));
-		*/
-    scale(windowScale);
-		imageForSaving = createImage(width, height, RGB);
-    imageForSaving.copy(markerCodes.src, x, y, width, height, 0, 0, width, height);
+void saveImage() {
+	saveImage(angelMarkers);
+}
+void saveImage(ArrayList<MatOfPoint2f> am) {
+	int x, y, width, height;
+	if (am.get(0).toArray()[0].x < am.get(1).toArray()[0].x) {
+		x = (int)am.get(0).toArray()[0].x;
+		width = (int) am.get(1).toArray()[0].x - x;
+	} else {
+		x = (int)am.get(1).toArray()[0].x;
+		width = (int) am.get(0).toArray()[0].x - x;
+	}
+	if (am.get(0).toArray()[0].y < am.get(1).toArray()[0].y) {
+		y = (int)am.get(0).toArray()[0].y;
+		height = (int) am.get(1).toArray()[0].y - y;
+	} else {
+		y = (int)am.get(1).toArray()[0].y;
+		height = (int) am.get(0).toArray()[0].y - y;
+	}
+	/*
+		 println("x: " + x + "| y: " + y + "| w: " + width + "| h: " + height);
+		 println("x: " + x + "| y: " + y + "| w: " + abs(width) + "| h: " + abs(height));
+	 */
+	scale(windowScale);
+	imageForSaving = createImage(width, height, RGB);
+	imageForSaving.copy(markerCodes.src, x, y, width, height, 0, 0, width, height);
 
-    //image(imageForSaving, 0, 0);
-    imageForSaving.save("output" + frameCount + ".jpg");
-    s.newImage(imageForSaving);
+	//image(imageForSaving, 0, 0);
+	imageForSaving.save("output" + frameCount + ".jpg");
+	s.newImage(imageForSaving);
 
-		imageForSaving = createImage(width, height, RGB);
-    imageForSaving.copy(markerCodes.dst3, x, y, width, height, 0, 0, width, height);
-    s.newContour(imageForSaving);
-    scale(0.7);
-    rect(x, y, width, height);
+	imageForSaving = createImage(width, height, RGB);
+	imageForSaving.copy(markerCodes.dst3, x, y, width, height, 0, 0, width, height);
+	s.newContour(imageForSaving);
+	scale(0.7);
+	rect(x, y, width, height);
 
 
-  }
+}
