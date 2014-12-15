@@ -340,11 +340,11 @@ void saveImage(ArrayList<MatOfPoint2f> am) {
 	imageForSaving.copy(markerCodes.src, x, y, width, height, 0, 0, width, height);
 
 	//image(imageForSaving, 0, 0);
-	imageForSaving.save("output" + frameCount + ".jpg");
 	s.newImage(imageForSaving);
 
 	imageForSaving = createImage(width, height, RGB);
 	imageForSaving.copy(markerCodes.dst3, x, y, width, height, 0, 0, width, height);
+	imageForSaving.save("data/output" + frameCount + ".jpg");
 	s.newContour(imageForSaving);
 	scale(0.7);
 	rect(x, y, width, height);
