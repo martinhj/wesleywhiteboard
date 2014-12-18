@@ -42,7 +42,7 @@ class MarkerCodes {
   ArrayList<PImage> markersImages = new ArrayList<PImage>();
   ArrayList<PImage> markersImagesThresholded = new ArrayList<PImage>();
 
-  bekkBoard parent;
+  wesley parent;
   OpenCV opencv;
   int width, height;
 
@@ -56,7 +56,7 @@ class MarkerCodes {
   /**
    * MarkerCodes class constructor.
    */
-  public MarkerCodes (bekkBoard parent, OpenCV opencv, int width, int height) {
+  public MarkerCodes (wesley parent, OpenCV opencv, int width, int height) {
     this.parent = parent;
     this.opencv = opencv;
     this.width = width;
