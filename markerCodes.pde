@@ -1,3 +1,4 @@
+
 import gab.opencv.*;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.core.Core;
@@ -14,6 +15,9 @@ import org.opencv.core.Size;
 
 
 
+/* 
+ * This class is based on the OpenCV for processing marker example.
+ */
 class MarkerCodes {
 
   PImage src, dst, markerImg;
