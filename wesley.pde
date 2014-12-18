@@ -33,31 +33,30 @@ PImage imageForSaving = createImage(videoWidth, videoHeight, RGB);
  * processing sketch main setup.
  */
 void setup () {
-  //setThreshold();
-  //bitshift();
-  frame.setTitle("Wesley the white board");
-
-
-  videoWidth = 1920/2;
-  videoHeight = 1080/2;
-  
+  videoWidth = 1920/2; // change this to correspond with the resolution of your camera.
+  videoHeight = 1080/2; // change this to correspond with the resolution of your camera.
   windowScale = (float) 960 / videoWidth ; // to scale down the video and window
-  println(windowScale);
+  frame.setTitle("Wesley the whiteboard");
+
   PFrame secondFrame = new PFrame(s, (int)round(videoWidth * windowScale * windowScale), 900);
   secondFrame.setTitle("Wesley output");
+
+
   int windowWidth = (int)round((videoWidth*0.7 + videoWidth*0.35) * windowScale);
   int windowHeight = (int) round((videoHeight*0.7) * windowScale);
-
   size(windowWidth, windowHeight);
 
-	video = new Capture(this, videoWidth, videoHeight, "Microsoft® LifeCam Studio(TM)", 30);
-	//video = new Capture(this, videoWidth, videoHeight);
+	video = new Capture(this, videoWidth, videoHeight);
+	//video = new Capture(this, videoWidth, videoHeight, "NAME OF CAMERA", 30);
   opencv = new OpenCV(this, videoWidth, videoHeight);
 
 
 
   markerCodes = new MarkerCodes(this, opencv, videoWidth, videoHeight);
 	  
+  // uncomment the following code to print out information about connected
+  // cameras. Use it for resolution settings and which camera to connect to
+  // above.
   /*
 	String[] cameras = Capture.list();
 	if (cameras.length == 0) {
